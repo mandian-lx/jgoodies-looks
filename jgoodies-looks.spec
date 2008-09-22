@@ -9,7 +9,7 @@ Release: %mkrel 0.6.1
 License: BSD
 
 BuildRequires: jpackage-utils >= 0:1.6
-BuildRequires: java-devel >= 0:1.4
+BuildRequires: java-rpmbuild >= 0:1.4
 BuildRequires: ant
 Requires: java >= 0:1.4
 BuildArch: noarch
