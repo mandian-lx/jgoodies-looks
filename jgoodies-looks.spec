@@ -3,7 +3,7 @@
 Name: jgoodies-looks
 Summary: Free high-fidelity Windows and multi-platform appearance
 URL: http://www.jgoodies.com/freeware/looks/
-Group: Development/Libraries
+Group: Development/Java
 Version: 2.2.0
 Release: %mkrel 0.6.1
 License: BSD
@@ -33,7 +33,8 @@ Main Benefits:
 
 %package javadoc
 Summary: Javadoc documentation for JGoodies Looks
-Group: Documentation
+Group: Development/Java
+
 %description javadoc
 The JGoodies look&feels make your Swing applications and applets look better.
 They have been optimized for readability, precise micro-design and usability.
