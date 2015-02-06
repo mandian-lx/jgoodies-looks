@@ -3,7 +3,7 @@
 Summary:	Free high-fidelity Windows and multi-platform appearance
 Name:		jgoodies-looks
 Version:	2.2.1
-Release:	0.0.5
+Release:	0.0.6
 Group:		Development/Java
 License:	BSD
 URL:		http://www.jgoodies.com/freeware/looks/
