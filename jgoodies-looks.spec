@@ -24,11 +24,13 @@ BuildArch:	noarch
 
 BuildRequires:	java-rpmbuild
 BuildRequires:	maven-local
-BuildRequires:	jgoodies-common >= 1.8
+BuildRequires:	mvn(com.jgoodies:jgoodies-common) >= 1.8
+# The following is required for tests only
+BuildRequires:	mvn(junit:junit)
 
 Requires:	java-headless >= 1.6
 Requires:	jpackage-utils
-Requires:	jgoodies-common >= 1.8
+Requires:	mvn(com.jgoodies:jgoodies-common) >= 1.8
 
 %description
 The JGoodies Looks make your Swing applications and applets look better.
