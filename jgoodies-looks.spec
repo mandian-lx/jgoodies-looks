@@ -1,82 +1,99 @@
-%define shortname looks
+%define oname JGoodies
+%define shortoname Looks
+%define releasedate 20141123
 
-Summary:	Free high-fidelity Windows and multi-platform appearance
-Name:		jgoodies-looks
-Version:	2.2.1
-Release:	0.0.6
-Group:		Development/Java
+%define bname %(echo %oname | tr [:upper:] [:lower:])
+%define shortname %(echo %shortoname | tr [:upper:] [:lower:])
+
+%define version 2.7.0
+%define oversion %(echo %version | tr \. _)
+
+Summary:	High-Fidelity Windows and Multi-Platform Look&Feels
+Name:		%{bname}-%{shortname}
+Version:	%{version}
+Release:	1
 License:	BSD
-URL:		http://www.jgoodies.com/freeware/looks/
-# Unfortunately, the filename has the version in an annoying way
-Source0:	http://www.jgoodies.com/download/libraries/%{shortname}/%{shortname}-2_2_1.zip
-# Source1: %{name}.README
-Patch0:		%{name}-build.patch
-BuildRequires:	jpackage-utils >= 0:1.6
-BuildRequires:	java-rpmbuild >= 0:1.4
-BuildRequires:	ant
-Requires:	java >= 0:1.4
+Group:		Development/Java
+URL:		http://www.jgoodies.com/freeware/libraries/%{shortname}/
+Source0:	http://www.jgoodies.com/download/libraries/%{shortname}/%{name}-%{oversion}-%{releasedate}.zip
+# NOTE: Latest version of jgoodies libraries can't be freely download from
+#	from the official site. However official maven repo provides some
+#	more updated versions
+# Source0:	https://repo1.maven.org/maven2/com/%{bname}/%{name}/%{version}/%{name}-%{version}-sources.jar
 BuildArch:	noarch
 
+BuildRequires:	java-rpmbuild
+BuildRequires:	maven-local
+BuildRequires:	jgoodies-common >= 1.8
+
+Requires:	java-headless >= 1.6
+Requires:	jpackage-utils
+Requires:	jgoodies-common >= 1.8
+
 %description
-The JGoodies look&feels make your Swing applications and applets look better.
-They have been optimized for readability, precise micro-design and usability.
+The JGoodies Looks make your Swing applications and applets look better.
+The package consists of a Windows look&feel and the Plastic look&feel
+family. These have been optimized for readability, precise micro-design
+and usability.
 
-Main Benefits:
+The Looks requires Java 6 or later and the JGoodies Common library.
 
-* Improved readability, legibility and in turn usability.
-* Improved aesthetics - looks good on the majority of desktops
-* Simplified multi-platform support
-* Precise micro-design
+%files -f .mfiles
+%doc README.html
+%doc RELEASE-NOTES.txt
+%doc LICENSE.txt
+
+#----------------------------------------------------------------------------
 
 %package javadoc
-Summary:	Javadoc documentation for JGoodies Looks
-Group:		Development/Java
+Summary:	Javadoc for %{oname} %{shortoname}
+Requires:	jpackage-utils
 
 %description javadoc
-The JGoodies look&feels make your Swing applications and applets look better.
-They have been optimized for readability, precise micro-design and usability.
+API documentation for %{oname} %{shortoname}.
 
-This package contains the Javadoc documentation for JGoodies Looks.
+%files javadoc -f .mfiles-javadoc
+
+#----------------------------------------------------------------------------
 
 %prep
-%setup -q -n %{shortname}-%{version}
-%patch0 -p1
+%setup -q
+# Extract sources
+mkdir -p src/main/java/
+pushd src/main/java/
+%jar -xf ../../../%{name}-%{version}-sources.jar
+popd
 
-# unzip the look&feel settings from bundled jar before we delete it
-# (taken from Gentoo ebuild)
-unzip -j %{shortname}-%{version}.jar META-INF/services/javax.swing.LookAndFeel \
-|| die "unzip of javax.swing.LookAndFeel failed"
-# and rename it to what build.xml expects
-mv javax.swing.LookAndFeel all.txt
+# Extract tests
+mkdir -p src/test/java/
+pushd src/test/java/
+%jar -xf ../../../%{name}-%{version}-tests.jar
+popd
 
-# Delete pre-generated stuff we don't want
-rm %{shortname}-%{version}.jar
-rm -r docs/api
+# Delete prebuild JARs and docs
+find . -name "*.jar" -delete
+find . -name "*.class" -delete
+rm -fr docs
+
+# move resorces according to standard maven path
+mkdir -p src/main/resources/com/jgoodies/looks/plastic/
+mv src/main/java/com/jgoodies/looks/plastic/icons/ src/main/resources/com/jgoodies/looks/plastic/
+mkdir -p src/main/resources/com/jgoodies/looks/common/
+mv src/main/java/com/jgoodies/looks/common/*.png src/main/resources/com/jgoodies/looks/common/
+
+# Add the META-INF/INDEX.LIST to the jar archive (fix jar-not-indexed warning)
+%pom_add_plugin :maven-jar-plugin . "<configuration>
+	<archive>
+		<index>true</index>
+	</archive>
+</configuration>"
+
+# Fix Jar name
+%mvn_file :%{name} %{name}-%{version} %{name}
 
 %build
-%ant -Ddescriptors.dir=. compile jar javadoc
+%mvn_build
 
 %install
-install -dp %{buildroot}%{_javadir} \
-        %{buildroot}%{_javadocdir}/%{name}-%{version}
-cp -p build/%{shortname}.jar %{buildroot}%{_javadir}/%{name}-%{version}.jar
-ln -s %{name}-%{version}.jar %{buildroot}%{_javadir}/%{name}.jar
-cp -pr build/docs/api/* %{buildroot}%{_javadocdir}/%{name}-%{version}
-# install -m 644 %SOURCE1 README_RPM.txt
-# Fix the line endings!
-for file in *.txt *.html docs/*.* docs/guide/*.*; do
-    sed -i 's/\r//' $file
-done
-cd %{buildroot}%{_javadocdir}
-ln -s %{name}-%{version} %{name}
-
-%files
-%doc RELEASE-NOTES.txt LICENSE.txt README.html docs/
-%{_javadir}/%{name}.jar
-%{_javadir}/%{name}-%{version}.jar
-
-%files javadoc
-%defattr(644,root,root,755)
-%{_javadocdir}/%{name}-%{version}
-%{_javadocdir}/%{name}
+%mvn_install
 
