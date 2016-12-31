@@ -24,13 +24,13 @@ BuildArch:	noarch
 
 BuildRequires:	java-rpmbuild
 BuildRequires:	maven-local
-BuildRequires:	mvn(com.jgoodies:jgoodies-common) >= 1.8
+BuildRequires:	jgoodies-common #mvn(com.jgoodies:jgoodies-common) >= 1.8
 # The following is required for tests only
 BuildRequires:	mvn(junit:junit)
 
 Requires:	java-headless >= 1.6
 Requires:	jpackage-utils
-Requires:	mvn(com.jgoodies:jgoodies-common) >= 1.8
+Requires:	jgoodies-common #mvn(com.jgoodies:jgoodies-common) >= 1.8
 
 %description
 The JGoodies Looks make your Swing applications and applets look better.
@@ -77,13 +77,21 @@ find . -name "*.jar" -delete
 find . -name "*.class" -delete
 rm -fr docs
 
-# move resorces according to standard maven path
-mkdir -p src/main/resources/com/jgoodies/looks/plastic/
-mv src/main/java/com/jgoodies/looks/plastic/icons/ src/main/resources/com/jgoodies/looks/plastic/
-mkdir -p src/main/resources/com/jgoodies/looks/common/
-mv src/main/java/com/jgoodies/looks/common/*.png src/main/resources/com/jgoodies/looks/common/
+# Fix resources path
+%pom_xpath_inject "pom:build" "
+<resources>
+	<resource>
+		<directory>src/main/java/</directory>
+		<includes>
+			<include>com/jgoodies/looks/common/**.png</include>
+			<include>com/jgoodies/looks/plastic/icons/**/*.gif</include>
+			<include>com/jgoodies/looks/plastic/icons/**/*.png</include>
+		</includes>
+	</resource>
+</resources>"
 
-# Add the META-INF/INDEX.LIST to the jar archive (fix jar-not-indexed warning)
+
+# Fix jar-not-indexed warning
 %pom_add_plugin :maven-jar-plugin . "<configuration>
 	<archive>
 		<index>true</index>
