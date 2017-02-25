@@ -1,3 +1,5 @@
+%{?_javapackages_macros:%_javapackages_macros}
+
 %define oname JGoodies
 %define shortoname Looks
 %define releasedate 20141123
@@ -22,14 +24,10 @@ Source0:	http://www.jgoodies.com/download/libraries/%{shortname}/%{name}-%{overs
 # Source0:	https://repo1.maven.org/maven2/com/%{bname}/%{name}/%{version}/%{name}-%{version}-sources.jar
 BuildArch:	noarch
 
-BuildRequires:	maven-local
-BuildRequires:	jgoodies-common >= 1.8 # mvn(com.jgoodies:jgoodies-common)
-# The following is required for tests only
-BuildRequires:	mvn(junit:junit)
-
-Requires:	java-headless >= 1.6
-Requires:	jpackage-utils
-Requires:	jgoodies-common >= 1.8 # mvn(com.jgoodies:jgoodies-common)
+BuildRequires:  maven-local
+BuildRequires:  mvn(com.jgoodies:jgoodies-common)
+BuildRequires:  mvn(junit:junit)
+BuildRequires:  mvn(org.sonatype.oss:oss-parent:pom:)
 
 %description
 The JGoodies Looks make your Swing applications and applets look better.
